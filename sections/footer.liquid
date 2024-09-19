@@ -1,9 +1,18 @@
 {% comment %}theme-check-disable UndefinedObject{% endcomment %}
+{% if canonical_url contains '/pages/list-1' %}
+  {% render 'footer-css' %}
+  <link rel="stylesheet" data-href="{{ 'section-footer.css' | asset_url }}" />
+  <link rel="stylesheet" data-href="{{ 'component-newsletter.css' | asset_url }}" />
+  <link rel="stylesheet" data-href="{{ 'component-list-menu.css' | asset_url }}" />
+  <link rel="stylesheet" data-href="{{ 'component-list-payment.css' | asset_url }}" />
+  <link rel="stylesheet" data-href="{{ 'component-list-social.css' | asset_url }}" />
+{% else %}
 {{ 'section-footer.css' | asset_url | stylesheet_tag }}
 {{ 'component-newsletter.css' | asset_url | stylesheet_tag }}
 {{ 'component-list-menu.css' | asset_url | stylesheet_tag }}
 {{ 'component-list-payment.css' | asset_url | stylesheet_tag }}
 {{ 'component-list-social.css' | asset_url | stylesheet_tag }}
+{% endif %}
 
 {%- style -%}
   .footer {

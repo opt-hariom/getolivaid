@@ -5,11 +5,20 @@
   {% render 'cart-drawer' %}
 {% endcomment %}
 
-{{ 'quantity-popover.css' | asset_url | stylesheet_tag }}
-{{ 'component-card.css' | asset_url | stylesheet_tag }}
-
+{% if canonical_url contains '/pages/list-1' %}
+{% render 'cart-css' %}  
+<link rel="stylesheet" data-href="{{ 'quantity-popover.css' | asset_url }}">
+<link rel="stylesheet" data-href="{{ 'component-card.css' | asset_url }}">
+  
+<script type="lazyload_js" data-src="{{ 'cart.js' | asset_url }}"></script>
+<script type="lazyload_js" data-src="{{ 'quantity-popover.js' | asset_url }}"></script>
+{% else %}
+<link rel="stylesheet" href="{{ 'quantity-popover.css' | asset_url }}">
+<link rel="stylesheet" href="{{ 'component-card.css' | asset_url }}">
+  
 <script src="{{ 'cart.js' | asset_url }}" defer="defer"></script>
 <script src="{{ 'quantity-popover.js' | asset_url }}" defer="defer"></script>
+{% endif %}
 
 <style>
   .drawer {

@@ -1,3 +1,14 @@
+{% if canonical_url contains '/pages/list-1' %}
+{% render 'header-css' %}  
+<link rel="stylesheet" data-href="{{ 'component-list-menu.css' | asset_url }}">
+<link rel="stylesheet" data-href="{{ 'component-search.css' | asset_url }}">
+<link rel="stylesheet" data-href="{{ 'component-menu-drawer.css' | asset_url }}">
+<link rel="stylesheet" data-href="{{ 'component-cart-notification.css' | asset_url }}">
+
+{%- if settings.predictive_search_enabled -%}
+  <link rel="stylesheet" data-href="{{ 'component-price.css' | asset_url }}">
+{%- endif -%}
+{% else %}
 <link rel="stylesheet" href="{{ 'component-list-menu.css' | asset_url }}" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="{{ 'component-search.css' | asset_url }}" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="{{ 'component-menu-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
@@ -6,6 +17,7 @@
 {%- if settings.predictive_search_enabled -%}
   <link rel="stylesheet" href="{{ 'component-price.css' | asset_url }}" media="print" onload="this.media='all'">
 {%- endif -%}
+{% endif %}
 
 {%- if section.settings.menu_type_desktop == 'mega' -%}
   <link rel="stylesheet" href="{{ 'component-mega-menu.css' | asset_url }}" media="print" onload="this.media='all'">
@@ -96,7 +108,11 @@
   }
 {%- endstyle -%}
 
+{% if canonical_url contains '/pages/list-1' %}
+<script type="lazyload_js" data-src="{{ 'cart-notification.js' | asset_url }}"></script>
+{% else %}
 <script src="{{ 'cart-notification.js' | asset_url }}" defer="defer"></script>
+{% endif %}
 
 <svg xmlns="http://www.w3.org/2000/svg" class="hidden">
   <symbol id="icon-search" viewbox="0 0 18 19" fill="none">
@@ -300,7 +316,7 @@
   {%- render 'cart-notification', color_scheme: section.settings.color_scheme, desktop_menu_type: section.settings.menu_type_desktop -%}
 {%- endif -%}
 
-{% javascript %}
+<script>
   class StickyHeader extends HTMLElement {
     constructor() {
       super();
@@ -410,7 +426,7 @@
   }
 
   customElements.define('sticky-header', StickyHeader);
-{% endjavascript %}
+</script>
 
 <script type="application/ld+json">
   {

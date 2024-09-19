@@ -1,0 +1,214 @@
+<div id="shopify-block-16843599010748508989" class="shopify-block shopify-app-block"><!-- simply-insurance -->
+<script type="lazyload_js">
+  window.simplyInsurance = window.simplyInsurance || {};
+  window.cn = function(o) {
+    return "undefined" == typeof o || null == o || "" == o.toString().trim()
+  };
+  simplyInsurance.insurancePlan = "{\"insurance_plan_title\":\"Shipping Protection\",\"insurance_plan_description\":null,\"opt_in_message\":\"Get peace of mind with Delivery Guarantee in the event your delivery is damaged,stolen,or lost during transist.\",\"opt_out_message\":\"By deselecting shipping protection, We are not liable for lost, damaged, or stolen items\",\"widget_image_url\":null,\"widget_subtitle\":\"from Damage, Loss \u0026 Theft for ##plan_price\",\"sidecart\":false,\"insurance_auto_enable\":true,\"tool_tip_message\":\"Get peace of mind with Shipping Protection in the event your delivery is damaged, stolen, or lost during transit.\",\"insurance_plan_type\":\"fixed\",\"cart_percentage\":null,\"product_handle\":\"shipping-protection\",\"is_app_enable\":\"yes\",\"planArray\":[{\"insurance_plan_name\":\"Shipping Protection\",\"insurance_plan_amount\":\"3.95\",\"min_order_price\":null,\"max_order_price\":null,\"product_ids\":\"\",\"product_tags\":\"\",\"is_gloabal_rule\":\"Yes\",\"status\":\"Active\",\"can_apply_after_days\":\"\",\"variant_id\":\"49162316579153\"}]}";
+  simplyInsurance.insurancePlan = JSON.parse(simplyInsurance.insurancePlan);
+  simplyInsurance.money_format = "€{{amount_with_comma_separator}}";
+  simplyInsurance.cartJson = {"note":null,"attributes":{},"original_total_price":0,"total_price":0,"total_discount":0,"total_weight":0.0,"item_count":0,"items":[],"requires_shipping":false,"currency":"EUR","items_subtotal_price":0,"cart_level_discount_applications":[],"checkout_charge_amount":0};
+  simplyInsurance.SkipProduct = null;
+  simplyInsurance.SkipProduct = JSON.parse(simplyInsurance.SkipProduct);
+  simplyInsurance.skipSkus = simplyInsurance.SkipProduct
+    ? simplyInsurance.SkipProduct.sku
+      ? simplyInsurance.SkipProduct.sku  
+      : []
+    : [];
+  simplyInsurance.skipHandles = simplyInsurance.SkipProduct
+    ? simplyInsurance.SkipProduct.handle
+      ? simplyInsurance.SkipProduct.handle
+      : []
+    : [];
+
+  // simplyInsurance.customCSS = null;
+  // simplyInsurance.customJS = null;
+  simplyInsurance.simplySelector = ".si-widget";
+
+  function checkInsure() {
+    if (cn(simplyInsurance.insurancePlan)) {
+      return;
+    }
+  }
+  checkInsure();
+
+/* Load css */
+  var cssId = 'myCss'; // you could encode the css path itself to generate id..
+  if (!document.getElementById(cssId)) {
+    var head = document.getElementsByTagName('head')[0];
+    var link = document.createElement('link');
+    link.id = cssId;
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = "https://cdn.shopify.com/extensions/7d88d51a-a56a-42bb-ac97-03dd80382a50/simply-shipping-protection-26/assets/simply-insurance.css";
+    link.media = 'all';
+    head.appendChild(link);
+  }
+</script>
+<style>
+  .simply-insurance {
+    display: none;
+  }
+  
+</style>
+
+<script type="lazyload_js" data-src="https://cdn.shopify.com/extensions/7d88d51a-a56a-42bb-ac97-03dd80382a50/simply-shipping-protection-26/assets/simply-insurance.js"></script>
+<script type="lazyload_js">
+
+if(Shopify.currency && Shopify.currency.rate){
+    simplyInsurance.insurancePlan.planArray.forEach(function(p){
+        p.insurance_plan_amount = (p.insurance_plan_amount * Shopify.currency.rate).toFixed(2);
+        p.max_order_price = (p.max_order_price * Shopify.currency.rate).toFixed(2);
+        p.min_order_price = (p.min_order_price * Shopify.currency.rate).toFixed(2);
+    })
+  }
+
+  simplyInsurance.getSectionInnerHTML = function(html, selector = '.shopify-section') {
+    return new DOMParser().parseFromString(html, 'text/html').querySelector(selector)?.innerHTML;
+  }
+
+  simplyInsurance.getSectionsToRender = function() {
+    return [
+      {
+        id: 'cart-drawer',
+        section: 'cart-drawer',
+        selector: '#CartDrawer'
+      },
+      {
+          id: 'cart-icon-bubble',
+          section: 'cart-icon-bubble',
+        },
+        {
+          id: 'free-shipping-notice',
+          section: 'free-shipping-notice',
+          selector: '.free-shipping-notice'
+        }
+    ];
+  }
+
+  simplyInsurance.getSectionDOM = function(html, selector = '.shopify-section') {
+    return new DOMParser().parseFromString(html, 'text/html').querySelector(selector);
+  }
+
+  simplyInsurance.renderContents = function(parsedState) {
+    simplyInsurance.getSectionsToRender().forEach((section => {
+      const sectionElement = section.selector
+        ? document.querySelector(section.selector)
+        : document.getElementById(section.id);
+      if(sectionElement && typeof sectionElement !== "undefined"){
+        sectionElement.innerHTML = simplyInsurance.getSectionInnerHTML(parsedState[section.id], section.selector);  
+      }
+    }));
+  }
+  simplyInsurance.updateSideCartforDawnBasedTheme = function() {
+    const sections = this.getSectionsToRender().map((section) => section.section);
+    fetch(window.Shopify.routes.root + "?sections="+sections).then(res => res.json()).then((state) => {
+      simplyInsurance.renderContents(state);
+    });
+  }
+
+  simplyInsurance.cartModificationCallback = function(changeType) {
+    document.dispatchEvent(new CustomEvent("ssp:cart:update"));
+  }
+  simplyInsurance.mode = 1;
+  
+  simplyInsurance.cartPageRefresh = false;
+  simplyInsurance.cartReload = function(changeType) {
+    switch (changeType) {
+      case 0:
+        { // insurance added
+          simplyInsurance.cartModificationCallback(changeType);
+          break;
+        }
+      case 1:
+        { // insurance removed
+          simplyInsurance.cartModificationCallback(changeType);
+          break;
+        }
+    }
+  }
+
+  simplyInsurance.toggleUncheck = function() {
+    document.body.dispatchEvent(new Event("si.toggle.uncheck"));
+  }
+
+  window.SLIDECART_UPDATED = function(cart) {
+
+// Fires whenevr slide cart has updated
+    try {
+      if (simplyInsurance && typeof simplyInsurance !== "undefined") 
+        simplyInsurance.loadApp();
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+// Sticky Cart & Slide Cart - heysenior
+  window.HS_SLIDE_CART_UPDATED = function(cart) {
+
+// Runs every time the slider cart is updated.
+    try {
+      if (simplyInsurance && typeof simplyInsurance !== "undefined") 
+        simplyInsurance.loadApp();
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  document.addEventListener('ssp:cart:update', function(event) {
+    console.log('ssp:cart:update', event.detail);
+    if(simplyInsurance.cartPageRefresh){
+      location.reload();
+    }
+
+// Sticky Cart & Slide Cart - heysenior
+    if (typeof(window.HS_SLIDE_CART_UPDATE) === 'function') {
+      window.HS_SLIDE_CART_UPDATE(function() {});
+    }
+
+// Icart upsell
+    if (typeof prepareDataForDisplayWidgetByRule !== "undefined" && prepareDataForDisplayWidgetByRule) {
+      prepareDataForDisplayWidgetByRule();
+    }
+
+    if (typeof(window.SLIDECART_UPDATE) === 'function') {
+      window.SLIDECART_UPDATE(function() {});
+    }
+    document.documentElement.dispatchEvent(new CustomEvent('cart:refresh', {
+      bubbles: true // same code for prestige theme
+    }));
+
+    if (typeof(theme) !== 'undefined' && theme != null) {
+      if (typeof theme.cart !== 'undefined' && theme.cart != null) {
+        if (typeof(theme.cart.updateAllHtml) === 'function') {
+          theme.cart.updateAllHtml();
+        }
+        if (typeof(theme.cart.updateTotals) === 'function') {
+          theme.cart.updateTotals();
+        }
+      }
+      if (typeof(theme.jQuery) !== 'undefined' && theme.jQuery != null) {
+        theme.jQuery("body").trigger("added.ajaxProduct")
+      }
+    }
+    document.body.dispatchEvent(new CustomEvent("cart:refresh"));
+    document.body.dispatchEvent(new CustomEvent("added.ajaxProduct"));
+    document.dispatchEvent(new CustomEvent('cart:build'));
+    simplyInsurance.updateSideCartforDawnBasedTheme();
+    document.dispatchEvent(new CustomEvent('dispatch:cart-drawer:refresh'));
+  });
+
+  document.addEventListener('rebuy:smartcart.show', function(event) {
+    console.log('rebuy:smartcart.show event', event.detail);
+    window.HS_SLIDE_CART_UPDATED();
+  });
+  document.addEventListener('rebuy:smartcart.product-removed', function(event) {
+    console.log('rebuy:smartcart.product-removed event', event.detail);
+    if (event.detail.product.vendor == "SimplyInsurance") {
+      simplyInsurance.toggleUncheck();
+    } else {
+      window.HS_SLIDE_CART_UPDATED();
+    }
+  });
+</script>
+</div>

@@ -1,7 +1,8 @@
 <!doctype html>
 <html class="js" lang="{{ request.locale.iso_code }}">
   <head>
-{% render 'replo-head' %}
+    {% render 'header_file' %}
+    {% render 'replo-head' %}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -29,18 +30,39 @@
 
     {% render 'meta-tags' %}
 
-    <script src="{{ 'constants.js' | asset_url }}" defer="defer"></script>
+    {% if canonical_url contains '/pages/list-1' %}
+	<script type="lazyload_js" data-src="{{ 'constants.js' | asset_url }}"></script>
+    <script type="lazyload_js" data-src="{{ 'pubsub.js' | asset_url }}"></script>
+    <script type="lazyload_js" data-src="{{ 'global.js' | asset_url }}"></script>
+    <script type="lazyload_js" data-src="{{ 'details-disclosure.js' | asset_url }}"></script>
+    <script type="lazyload_js" data-src="{{ 'details-modal.js' | asset_url }}"></script>
+    <script type="lazyload_js" data-src="{{ 'search-form.js' | asset_url }}"></script>		
+
+      {%- if settings.animations_reveal_on_scroll -%}
+      <script type="lazyload_js" data-src="{{ 'animations.js' | asset_url }}"></script>
+      {%- endif -%}  
+	{% else %}
+	<script src="{{ 'constants.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'pubsub.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'details-disclosure.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'details-modal.js' | asset_url }}" defer="defer"></script>
-    <script src="{{ 'search-form.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'search-form.js' | asset_url }}" defer="defer"></script>	
 
-    {%- if settings.animations_reveal_on_scroll -%}
-      <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>
+      {%- if settings.animations_reveal_on_scroll -%}
+        <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>
+      {%- endif -%}  
+	{% endif %}
+
+    
+
+    {%- if request.design_mode or template contains 'cart' or template contains 'checkout' or canonical_url contains '/apps/tracking' -%}
+            {{ content_for_header }}
+    {%- else -%}
+            {% capture content_for_header2 %}{{ content_for_header }}{% endcapture %}
+            {{ content_for_header2 | replace: ' defer="defer" ', ' type="lazyload_js" ' | replace: " src=", " data-src="| replace: "DOMContentLoaded", "appco-DOMContentLoaded" | replace: "window.addEventListener('load', asyncLoad, false);", "window.addEventListener('appco-DOMContentLoaded', asyncLoad, false);" | replace: "addEventListener('load', prefetchAssets);", "addEventListener('appco-DOMContentLoaded', prefetchAssets);" }}
+            <script>var trekkie=[];trekkie.integrations=!0;window.BOOMR={},window.BOOMR.version=true;</script>
     {%- endif -%}
-
-    {{ content_for_header }}
 
     {%- liquid
       assign body_font_bold = settings.type_body_font | font_modify: 'weight', 'bold'
@@ -255,17 +277,34 @@
         }
       }
     {% endstyle %}
-
-    {{ 'base.css' | asset_url | stylesheet_tag }}
-    <link rel="stylesheet" href="{{ 'component-cart-items.css' | asset_url }}" media="print" onload="this.media='all'">
-
-    {%- if settings.cart_type == 'drawer' -%}
-      {{ 'component-cart-drawer.css' | asset_url | stylesheet_tag }}
-      {{ 'component-cart.css' | asset_url | stylesheet_tag }}
-      {{ 'component-totals.css' | asset_url | stylesheet_tag }}
-      {{ 'component-price.css' | asset_url | stylesheet_tag }}
-      {{ 'component-discounts.css' | asset_url | stylesheet_tag }}
-    {%- endif -%}
+    
+    {% if canonical_url contains '/pages/list-1' %}
+         {%- render 'base-css' -%}
+        <link rel="stylesheet" data-href="{{ 'base.css' | asset_url }}">
+        <link rel="stylesheet" data-href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;600;700;800;900;950&family=Inter:wght@100;200;300;400;500;600;700;800;900;950">
+       
+      {%- render 'theme-css' -%}
+        <link rel="stylesheet" data-href="{{ 'component-cart-items.css' | asset_url }}">
+  
+      {%- if settings.cart_type == 'drawer' -%}
+        <link rel="stylesheet" data-href="{{ 'component-cart-drawer.css' | asset_url }}">
+        <link rel="stylesheet" data-href="{{ 'component-cart.css' | asset_url }}">
+        <link rel="stylesheet" data-href="{{ 'component-totals.css' | asset_url }}">
+        <link rel="stylesheet" data-href="{{ 'component-price.css' | asset_url }}">
+        <link rel="stylesheet" data-href="{{ 'component-discounts.css' | asset_url }}"> 
+      {%- endif -%}
+    {% else %}
+        {{ 'base.css' | asset_url | stylesheet_tag }}
+        <link rel="stylesheet" href="{{ 'component-cart-items.css' | asset_url }}">
+    
+        {%- if settings.cart_type == 'drawer' -%}
+          {{ 'component-cart-drawer.css' | asset_url | stylesheet_tag }}
+          {{ 'component-cart.css' | asset_url | stylesheet_tag }}
+          {{ 'component-totals.css' | asset_url | stylesheet_tag }}
+          {{ 'component-price.css' | asset_url | stylesheet_tag }}
+          {{ 'component-discounts.css' | asset_url | stylesheet_tag }}
+        {%- endif -%}
+    {% endif %}
 
     {%- unless settings.type_body_font.system? -%}
       {% comment %}theme-check-disable AssetPreload{% endcomment %}
@@ -278,25 +317,35 @@
       {% comment %}theme-check-enable AssetPreload{% endcomment %}
     {%- endunless -%}
 
-    {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
-      {{ 'component-localization-form.css' | asset_url | stylesheet_tag: preload: true }}
+    {% if canonical_url contains '/pages/list-1' %}
+      {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
+        <link rel="stylesheet" data-href="{{ 'component-localization-form.css' | asset_url }}">
+        <script type="lazyload_js" data-src="{{ 'localization-form.js' | asset_url }}"></script>
+      {%- endif -%}
+    {% else %}
+      {%- if localization.available_countries.size > 1 or localization.available_languages.size > 1 -%}
+        {{ 'component-localization-form.css' | asset_url | stylesheet_tag: preload: true }}
       <script src="{{ 'localization-form.js' | asset_url }}" defer="defer"></script>
-    {%- endif -%}
+      {%- endif -%}
+    {% endif %}
 
-    {%- if settings.predictive_search_enabled -%}
-      <link
-        rel="stylesheet"
-        href="{{ 'component-predictive-search.css' | asset_url }}"
-        media="print"
-        onload="this.media='all'"
-      >
-    {%- endif -%}
+    {% if canonical_url contains '/pages/list-1' %}
+      {%- if settings.predictive_search_enabled -%}
+        {%- render 'predictive-search' -%}
+        <link rel="stylesheet" data-href="{{ 'component-predictive-search.css' | asset_url }}">
+      {%- endif -%}
+    {% else %}
+      {%- if settings.predictive_search_enabled -%}
+        <link rel="stylesheet" href="{{ 'component-predictive-search.css' | asset_url }}">
+      {%- endif -%}
+    {% endif %}
 
     <script>
       if (Shopify.designMode) {
         document.documentElement.classList.add('shopify-design-mode');
       }
     </script>
+    {% render 'custom-css' %}
   </head>
 
   <body class="gradient{% if settings.animations_hover_elements != 'none' %} animate--hover-{{ settings.animations_hover_elements }}{% endif %}">
@@ -311,7 +360,18 @@
     {% sections 'header-group' %}
 
     <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
-      {{ content_for_layout }}
+
+         {% if canonical_url contains '/pages/list-1' %}
+           {%- if request.design_mode or template contains 'cart' or template contains 'checkout' -%}
+                {{ content_for_layout }}
+           {%- else -%}
+                {% capture content_for_layout2 %}{{ content_for_layout }}{% endcapture %}
+                {{ content_for_layout2 | replace: '<script data-em-disable="true" async="" src="', '<script data-em-disable="true" type="lazyload_js" data-src="' | replace: '<source srcSet="', '<source data-srcSet="' | replace: '<img src="', '<img data-class="LazyLoad" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" data-src="' | replace: '@import url(', '@importlazy url(' | replace: 'src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" data-src="https://cdn.shopify.com/s/files/1/0810/9339/4761/files/Frame_26-3.png?v=1722106761"', 'src="https://cdn.shopify.com/s/files/1/0810/9339/4761/files/Frame_26-3.png?v=1722106761"' }}
+           {%- endif -%}
+         {% else %}
+                {{ content_for_layout }}
+         {% endif %}
+      
     </main>
 
     {% sections 'footer-group' %}
@@ -366,12 +426,26 @@
       };
     </script>
 
-    {%- if settings.predictive_search_enabled -%}
-      <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
-    {%- endif -%}
+    
+    {% if canonical_url contains '/pages/list-1' %}
+      {%- if settings.predictive_search_enabled -%}
+        <script type="lazyload_js" data-src="{{ 'predictive-search.js' | asset_url }}"></script>
+      {%- endif -%}
 
-    {%- if settings.cart_type == 'drawer' -%}
-      <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
-    {%- endif -%}
+      {%- if settings.cart_type == 'drawer' -%}
+        <script type="lazyload_js" data-src="{{ 'cart-drawer.js' | asset_url }}"></script>
+      {%- endif -%}
+    {% else %}
+      {%- if settings.predictive_search_enabled -%}
+        <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
+      {%- endif -%}
+
+      {%- if settings.cart_type == 'drawer' -%}
+        <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
+      {%- endif -%}
+    {% endif %}
+
+    {% render 'footer_file' %}
+    {% render 'footer-app-block' %}
   </body>
 </html>
